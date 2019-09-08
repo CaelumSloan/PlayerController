@@ -9,6 +9,8 @@ public class BlastJump : MonoBehaviour
 {
     private BRigidBody rigidBody;
 
+    [SerializeField] private Transform startRaycastFrom;
+
     [Range(1, 7f)]
     [SerializeField] private float blastJumpForce = 1;
     [Range(0, 20)]
@@ -53,9 +55,8 @@ public class BlastJump : MonoBehaviour
 
     public void ExecuteBlastJump()
     {
-        Transform startTransform = Camera.main.transform;
-        BulletSharp.Math.Vector3 from = startTransform.position.ToBullet();
-        BulletSharp.Math.Vector3 to = (startTransform.position + startTransform.forward * maxBlastJumpRange).ToBullet();
+        BulletSharp.Math.Vector3 from = startRaycastFrom.position.ToBullet();
+        BulletSharp.Math.Vector3 to = (startRaycastFrom.position + startRaycastFrom.forward * maxBlastJumpRange).ToBullet();
 
         ClosestRayResultCallback callback = new ClosestRayResultCallback(ref from, ref to);
         BPhysicsWorld.Get().world.RayTest(from, to, callback);

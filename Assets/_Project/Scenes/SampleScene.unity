@@ -63,7 +63,7 @@ LightmapSettings:
     m_CompAOExponent: 1
     m_CompAOExponentDirect: 0
     m_Padding: 2
-    m_LightmapParameters: {fileID: 15201, guid: 0000000000000000f000000000000000,
+    m_LightmapParameters: {fileID: 15204, guid: 0000000000000000f000000000000000,
       type: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 0
@@ -568,7 +568,7 @@ GameObject:
   m_Component:
   - component: {fileID: 268370433}
   m_Layer: 0
-  m_Name: SFX Maker
+  m_Name: SFX Holder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4613,8 +4613,8 @@ GameObject:
   - component: {fileID: 1530938561}
   - component: {fileID: 1530938562}
   m_Layer: 9
-  m_Name: BCapsule
-  m_TagString: Untagged
+  m_Name: Player
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4774,6 +4774,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89ad175cd6e3e994bbc948610cfc8ab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startRaycastFrom: {fileID: 282685171}
   blastJumpForce: 2
   maxBlastJumpRange: 5
   smallestBlastForce: 0.3
@@ -4849,7 +4850,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Standard
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _DETAIL_MULX2 _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -4865,14 +4866,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _DetailMask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 6525234a95571e24685b17f3d2853b39, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -4898,10 +4899,10 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DetailNormalMapScale: 1
+    - _DetailNormalMapScale: 0.37
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.19
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -4913,7 +4914,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.874, g: 0.83525264, b: 0.409032, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1 &1562596709
 GameObject:
@@ -4926,7 +4927,7 @@ GameObject:
   - component: {fileID: 1562596710}
   - component: {fileID: 1562596711}
   m_Layer: 8
-  m_Name: PP Vol
+  m_Name: Post Proccess Volume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
