@@ -18,6 +18,23 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        Vector3 moveDir = GetMoveDir();
+        Vector3 currentVelocity = rigidBody.velocity;
+
+        //Amount of requested direction in line with current direction
+        Vector3 agreenceComponent = Mathf.Abs(moveDir.ScalarProjection(currentVelocity)) * currentVelocity;
+        Vector3 disAgreenceComponent = moveDir - agreenceComponent;
+        Vector3 influencedVelocity = currentVelocity + disAgreenceComponent;
+
+        bool velocityBiggerThanMoveDir = currentVelocity.magnitude > moveDir.magnitude;
+        float biggestMag = velocityBiggerThanMoveDir ? currentVelocity.magnitude : moveDir.magnitude;
+        float scaling = velocityBiggerThanMoveDir ? Mathf.Min(influencedVelocity.magnitude, biggestMag) : moveDir.magnitude;
+
+        Vector3 newVelocity = influencedVelocity.normalized * scaling;
+    }
+
+    private Vector3 GetMoveDir()
+    {
         Vector3 moveDir = Vector3.zero;
 
         if (Input.GetKey(KeyCode.W))
@@ -37,8 +54,6 @@ public class PlayerController : MonoBehaviour
             moveDir += transform.right;
         }
 
-        moveDir = moveDir.normalized;
-
-        rigidBody.AddForce(Vector3.ClampMagnitude(moveDir * moveSpeed, maxSpeed));
+        return moveDir.normalized;
     }
 }
