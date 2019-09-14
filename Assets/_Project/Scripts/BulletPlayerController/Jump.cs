@@ -10,6 +10,7 @@ public class Jump : MonoBehaviour
 
     [SerializeField] private float jumpForce = 10;
     [SerializeField] private AudioSource jumpSFX;
+    GroundedChecker groundedChecker;
 
     private bool jumpToken;
     private bool handledThisFrame;
@@ -18,6 +19,7 @@ public class Jump : MonoBehaviour
     {
         jumpToken = false;
         rigidBody = GetComponent<BRigidBody>();
+        groundedChecker = GetComponent<GroundedChecker>();
     }
 
     void Update()
@@ -36,11 +38,16 @@ public class Jump : MonoBehaviour
 
     private void ExecuteJump()
     {
+        jumpToken = false;
+        handledThisFrame = true;
+
+        if (groundedChecker != null)
+            if (!groundedChecker.IsGrounded())
+                return;
+
         rigidBody.AddImpulse(Vector3.up * jumpForce);
         jumpSFX.Stop();
         jumpSFX.Play();
-        jumpToken = false;
-        handledThisFrame = true;
     }
 
     private void CheckForInput()

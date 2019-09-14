@@ -9,16 +9,19 @@ public class PlayerController : MonoBehaviour
     private BRigidBody rigidBody;
 
     [SerializeField] private float moveSpeed;
-    [SerializeField] private float maxSpeed;
+    [Range(0,2)]
+    [SerializeField] private float airFriction;
+    GroundedChecker groundedChecker;
 
     private void Start()
     {
         rigidBody = GetComponent<BRigidBody>();
+        groundedChecker = GetComponent<GroundedChecker>();
     }
 
     void FixedUpdate()
     {
-        Vector3 moveDir = GetMoveDir();
+        Vector3 moveDir = GetMoveDir() * moveSpeed;
         Vector3 currentVelocity = rigidBody.velocity;
 
         //Amount of requested direction in line with current direction
@@ -31,6 +34,10 @@ public class PlayerController : MonoBehaviour
         float scaling = velocityBiggerThanMoveDir ? Mathf.Min(influencedVelocity.magnitude, biggestMag) : moveDir.magnitude;
 
         Vector3 newVelocity = influencedVelocity.normalized * scaling;
+
+        float airFrictionVal = groundedChecker != null && !groundedChecker.IsGrounded() ? airFriction : 1;
+
+        rigidBody.velocity = new Vector3(newVelocity.x * airFrictionVal, currentVelocity.y, newVelocity.z * airFrictionVal);
     }
 
     private Vector3 GetMoveDir()

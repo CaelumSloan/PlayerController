@@ -21,14 +21,19 @@ public class BlastJump : MonoBehaviour
     [SerializeField] private float maxBlastJumpForce;
     [Range(0, .75f)]
     [SerializeField] private float falloffStrength = .27f;
+    [Range(0, 7f)]
+    [SerializeField] private float timeBetweenShots = 1;
 
     private bool blastJumpToken;
     private bool handledThisFrame;
     [Space(5)]
     [SerializeField] private bool enableDebugMode;
 
+    private Timer timer;
+
     void Start()
     {
+        timer = Timer.CreateTimer(timeBetweenShots);
         blastJumpToken = false;
         rigidBody = GetComponent<BRigidBody>();
     }
@@ -55,6 +60,11 @@ public class BlastJump : MonoBehaviour
 
     public void ExecuteBlastJump()
     {
+        blastJumpToken = false;
+        handledThisFrame = true;
+
+        if (!timer.CheckAndReset()) return;
+
         BulletSharp.Math.Vector3 from = startRaycastFrom.position.ToBullet();
         BulletSharp.Math.Vector3 to = (startRaycastFrom.position + startRaycastFrom.forward * maxBlastJumpRange).ToBullet();
 
@@ -62,7 +72,7 @@ public class BlastJump : MonoBehaviour
         BPhysicsWorld.Get().world.RayTest(from, to, callback);
 
         if (enableDebugMode)
-            Debug.DrawRay(from.ToUnity(), to.ToUnity(), Color.green, 2f);
+            Debug.DrawLine(from.ToUnity(), to.ToUnity(), Color.green, 2f);
 
         if (callback.HasHit)
         {
@@ -89,9 +99,6 @@ public class BlastJump : MonoBehaviour
                 s.GetComponent<MeshRenderer>().material.color = Color.green;
             }
             #endregion
-
-            blastJumpToken = false;
-            handledThisFrame = true;
         }
     }
 }
