@@ -115,6 +115,16 @@ public static class Extensions
         return layerNumber - 1;
     }
 
+    public static BulletSharp.Math.Vector3 normalized(this BulletSharp.Math.Vector3 v)
+    {
+        if (v.Length < BulletSharp.MathUtil.SIMD_EPSILON)
+        {
+            return BulletSharp.Math.Vector3.Zero;
+        }
+
+        return BulletSharp.Math.Vector3.Normalize(v);
+    }
+
     public static void Log(this GameObject gameObject, string message)
     {
         Debug.Log(message, gameObject);
