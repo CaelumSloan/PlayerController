@@ -16,19 +16,19 @@ public class InputHandler : MonoBehaviour
         wishDir = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
-            wishDir += Vector3.forward;
+            wishDir += transform.forward;
         }
         if (Input.GetKey(KeyCode.A))
         {
-            wishDir += Vector3.left;
+            wishDir += -transform.right;
         }
         if (Input.GetKey(KeyCode.S))
         {
-            wishDir += Vector3.back;
+            wishDir += -transform.forward;
         }
         if (Input.GetKey(KeyCode.D))
         {
-            wishDir += Vector3.right;
+            wishDir += transform.right;
         }
     }
 
