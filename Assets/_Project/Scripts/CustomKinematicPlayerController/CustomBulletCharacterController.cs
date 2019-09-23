@@ -99,6 +99,8 @@ public class CustomBulletCharacterController : BPairCachingGhostObject, ICharact
         ghostObject = (PairCachingGhostObject) m_collisionObject;
         convexShape = (ConvexShape) m_collisionShape.GetCollisionShape();
 
+        world.AddAction(this);
+
         return true;
     }
 

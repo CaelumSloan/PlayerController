@@ -150,21 +150,5 @@ namespace BulletUnity
             objsIWasInContactWithLastFrame = objsCurrentlyInContactWith;
             objsCurrentlyInContactWith = temp;
         }
-         
-        public override void BOnTriggerEnter(CollisionObject other, AlignedManifoldArray manifoldArray)
-        {
-            Debug.Log("Enter with " + other.UserObject + " fixedFrame " + BPhysicsWorld.Get().frameCount);
-        }
-
-        public override void BOnTriggerStay(CollisionObject other, AlignedManifoldArray manifoldArray)
-        {
-            Debug.Log("Stay with " + other.UserObject + " fixedFrame " + BPhysicsWorld.Get().frameCount);
-        }
-
-        public override void BOnTriggerExit(CollisionObject other)
-        {
-            Debug.Log("Exit with " + other.UserObject + " fixedFrame " + BPhysicsWorld.Get().frameCount);
-        }
-        //============
     }
 }
