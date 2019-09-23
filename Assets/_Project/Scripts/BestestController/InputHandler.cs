@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This could really go anywhere, doesn't even have to be a 
+/// MonoBehaviour I think.
+/// </summary>
 public class InputHandler : MonoBehaviour
 {
     Vector3 wishDir;
@@ -16,19 +20,19 @@ public class InputHandler : MonoBehaviour
         wishDir = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
-            wishDir += transform.forward;
+            wishDir += Vector3.forward;
         }
         if (Input.GetKey(KeyCode.A))
         {
-            wishDir += -transform.right;
+            wishDir += Vector3.left;
         }
         if (Input.GetKey(KeyCode.S))
         {
-            wishDir += -transform.forward;
+            wishDir += Vector3.back;
         }
         if (Input.GetKey(KeyCode.D))
         {
-            wishDir += transform.right;
+            wishDir += Vector3.right;
         }
     }
 
