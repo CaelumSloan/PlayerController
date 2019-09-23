@@ -20,8 +20,6 @@ public class NextPositionFinder : MonoBehaviour, IAction
         inputHandler = GetComponent<InputHandler>();
     }
 
-    public void DebugDraw(IDebugDraw debugDrawer){}
-
     //Bullets version of FixedUpdate. 
     public void UpdateAction(CollisionWorld collisionWorld, float deltaTimeStep)
     {
@@ -32,4 +30,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
         characterMover.MoveCharacter(collisionWorld, currentPos, targetPos);
     }
+
+    public void DebugDraw(IDebugDraw debugDrawer) { }
+
 }
