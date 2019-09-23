@@ -41,8 +41,10 @@ public class NextPositionFinder : MonoBehaviour, IAction
         ApplyFriction();
         Accelerate(wishDir, deltaTimeStep);
 
-        // Reset the gravity velocity
-        playerVelocity.y = -gravity * Time.deltaTime;
+        // air
+        playerVelocity.y -= gravity*deltaTimeStep;
+        // ground
+        playerVelocity.y = -gravity * deltaTimeStep;
 
         Vector3 targetPos = currentPos + (playerVelocity * deltaTimeStep); //Should I be multiplying by deltatime here?
 
