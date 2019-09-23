@@ -839,6 +839,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camVertRot: {fileID: 485200549}
   rotationSpeed: 10
+  rotationClamp: 86
 --- !u!1 &420497410
 GameObject:
   m_ObjectHideFlags: 0
