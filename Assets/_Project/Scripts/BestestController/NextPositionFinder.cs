@@ -42,7 +42,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         Accelerate(wishDir, deltaTimeStep);
 
         // air
-        playerVelocity.y -= gravity*deltaTimeStep;
+        //playerVelocity.y -= gravity*deltaTimeStep;
         // ground
         playerVelocity.y = -gravity * deltaTimeStep;
 
