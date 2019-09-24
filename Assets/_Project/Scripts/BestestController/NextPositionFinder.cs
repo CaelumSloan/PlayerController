@@ -21,14 +21,26 @@ public class NextPositionFinder : MonoBehaviour, IAction
     [SerializeField] private float runAcceleration = 14.0f;
     [Tooltip("Deacceleration that occurs when running on the ground")]
     [SerializeField] private float runDeacceleration = 10.0f;
+    [Tooltip("Air accel")]
+    [SerializeField] private float airAcceleration = 2.0f;
+    [Tooltip("Deacceleration experienced when ooposite strafing")]
+    [SerializeField] private float airDecceleration = 2.0f;
+    [Tooltip("How precise air control is")]
+    public float airControl = 0.3f;
     [Tooltip("Ground friction")]
     [SerializeField] private float friction = 6;
     [SerializeField] private float gravity = 20.0f;
     [Tooltip("The speed at which the character's up axis gains when hitting jump")]
     [SerializeField] private float jumpSpeed = 8.0f;
+    [Tooltip("How fast acceleration occurs to get up to sideStrafeSpeed when")]
+    [SerializeField] private float sideStrafeAcceleration = 50.0f;
+    [Tooltip("What the max speed to generate when side strafing")]
+    [SerializeField] private float sideStrafeSpeed = 1.0f;
 
     //More Temp
     bool wishJump = false;
+
+    bool jump = false;
 
     private void Awake()
     {
@@ -41,23 +53,25 @@ public class NextPositionFinder : MonoBehaviour, IAction
     //Bullets version of FixedUpdate. 
     public void UpdateAction(CollisionWorld collisionWorld, float deltaTimeStep)
     {
+        jumpSpeed = Input.GetKey(KeyCode.LeftShift) ? 18 : 8;
 
         //Movement Logic
-        Vector3 wishDir = transform.TransformDirection(inputHandler.GetWishDir()).normalized;
-        Vector3 currentPos = transform.position;
+        Vector3 localWishDir = inputHandler.GetWishDir();
+        Vector3 worldWishDir = transform.TransformDirection(inputHandler.GetWishDir()).normalized;
 
         QueueJump();
-        ApplyFriction();
-        Accelerate(wishDir, deltaTimeStep);
-        ApplyGravity(deltaTimeStep);
 
-        if (GroundCheck(deltaTimeStep))
+        if (GroundCheck())
         {
-            GroundMove(deltaTimeStep);
+            GroundMove(worldWishDir, deltaTimeStep);
+        }
+        else
+        {
+            AirMove(worldWishDir, localWishDir, deltaTimeStep);
         }
 
+        Vector3 currentPos = transform.position;
         Vector3 targetPos = currentPos + (playerVelocity * deltaTimeStep); //Should I be multiplying by deltatime here?
-
         characterMover.MoveCharacter(collisionWorld, currentPos.ToBullet(), targetPos.ToBullet());
     }
 
@@ -66,13 +80,18 @@ public class NextPositionFinder : MonoBehaviour, IAction
     /// </summary>
     private void QueueJump()
     {
-        if (Input.GetButtonDown("Jump") && !wishJump)
+        //if (Input.GetMouseButtonDown(1) && !wishJump)
+        //    wishJump = true;
+        //if (Input.GetMouseButtonUp(1))
+        //    wishJump = false;
+
+        if (Input.GetKeyDown(KeyCode.Space) && !wishJump)
             wishJump = true;
-        if (Input.GetButtonUp("Jump"))
+        if (Input.GetKeyUp(KeyCode.Space))
             wishJump = false;
     }
 
-    private void ApplyFriction()
+    private void ApplyFriction(float deltaTimeStep)
     {
         Vector3 vec = playerVelocity; // Equivalent to: VectorCopy();
         float speed;
@@ -85,8 +104,11 @@ public class NextPositionFinder : MonoBehaviour, IAction
         drop = 0.0f;
 
         /* Only if the player is on the ground then apply friction */
-        control = speed < runDeacceleration ? runDeacceleration : speed;
-        drop = control * friction * Time.deltaTime;
+        if (GroundCheck())
+        {
+            control = speed < runDeacceleration ? runDeacceleration : speed;
+            drop = !wishJump ? control * friction * Time.deltaTime : 0;
+        }
 
         newspeed = speed - drop;
         if (newspeed < 0)
@@ -98,7 +120,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         playerVelocity.z *= newspeed;
     }
 
-    private void Accelerate(Vector3 wishdir, float deltaTimeStep)
+    private void Accelerate(Vector3 wishdir, float accel, float deltaTimeStep)
     {
         float addspeed;
         float accelspeed;
@@ -108,7 +130,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         addspeed = moveSpeed - currentspeed;
         if (addspeed <= 0)
             return;
-        accelspeed = runAcceleration * deltaTimeStep * moveSpeed;
+        accelspeed = accel * deltaTimeStep * moveSpeed;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
@@ -116,31 +138,104 @@ public class NextPositionFinder : MonoBehaviour, IAction
         playerVelocity.z += accelspeed * wishdir.z;
     }
 
-    private void GroundMove(float deltaTimeStep)
+    private void GroundMove(Vector3 wishDir, float deltaTimeStep)
     {
-        //Vertical
+        ApplyFriction(deltaTimeStep);
+        Accelerate(wishDir, runAcceleration, deltaTimeStep);
+
+        // Reset the gravity velocity
+        playerVelocity.y = -gravity * deltaTimeStep;
+
+        //Ground Jump
         if (wishJump)
         {
             playerVelocity.y = jumpSpeed;
             wishJump = false;
+            jump = true;
+            StartCoroutine(JumpFix());
+            GetComponent<AudioSource>().Play();
         }
     }
 
-    private void ApplyGravity(float deltaTimeStep)
+    private bool GroundCheck()
     {
-        if (GroundCheck(deltaTimeStep))
-        {
-            playerVelocity.y = -gravity * deltaTimeStep;
-        }
+        return groundChecker.IsGrounded() && !jump;
+    }
+
+    private void AirMove(Vector3 worldWishDir, Vector3 localWishDir, float deltaTimeStep)
+    {
+        float accel;
+        if (Vector3.Dot(playerVelocity, worldWishDir) < 0)
+            accel = airDecceleration;
         else
+            accel = airAcceleration;
+
+        float wishSpeed = moveSpeed;
+
+        // If the player is ONLY strafing left or right
+        if (Mathf.Approximately(localWishDir.z,0) && !Mathf.Approximately(localWishDir.x, 0))
         {
-            playerVelocity.y -= gravity * Time.deltaTime;
+            if (wishSpeed > sideStrafeSpeed)
+                wishSpeed = sideStrafeSpeed;
+            accel = sideStrafeAcceleration;
         }
+
+        Accelerate(worldWishDir, wishSpeed, accel);
+        if (airControl > 0)
+            AirControl(worldWishDir, localWishDir, moveSpeed, deltaTimeStep);
+
+        // Apply gravity
+        playerVelocity.y -= gravity * Time.deltaTime;
     }
 
-    private bool GroundCheck(float deltaTimeStep)
+    /// <summary>
+    /// Air control occurs when the player is in the air, it allows
+    /// players to move side to side much faster rather than being
+    /// 'sluggish' when it comes to cornering.
+    /// </summary>
+    private void AirControl(Vector3 worldWishDir, Vector3 localWishDir, float wishspeed, float deltaTimeStep)
     {
-        return groundChecker.IsGrounded();
+        float zspeed;
+        float speed;
+        float dot;
+        float k;
+
+        // Can't control movement if not moving forward or backward
+        if (Mathf.Abs(localWishDir.z) < 0.001 || Mathf.Abs(wishspeed) < 0.001)
+            return;
+        zspeed = playerVelocity.y;
+        playerVelocity.y = 0;
+        /* Next two lines are equivalent to idTech's VectorNormalize() */
+        speed = playerVelocity.magnitude;
+        playerVelocity.Normalize();
+
+        dot = Vector3.Dot(playerVelocity, worldWishDir);
+        k = 32;
+        k *= airControl * dot * dot * deltaTimeStep;
+
+        // Change direction while slowing down
+        if (dot > 0)
+        {
+            playerVelocity.x = playerVelocity.x * speed + worldWishDir.x * k;
+            playerVelocity.y = playerVelocity.y * speed + worldWishDir.y * k;
+            playerVelocity.z = playerVelocity.z * speed + worldWishDir.z * k;
+
+            playerVelocity.Normalize();
+        }
+
+        playerVelocity.x *= speed;
+        playerVelocity.y = zspeed; // Note this line
+        playerVelocity.z *= speed;
+    }
+
+    private IEnumerator JumpFix()
+    {
+        yield return null;
+        yield return null;
+        yield return null;
+        yield return null;
+        yield return null;
+        jump = false;
     }
 
     public void DebugDraw(IDebugDraw debugDrawer) { }
