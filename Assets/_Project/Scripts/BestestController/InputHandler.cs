@@ -17,6 +17,11 @@ public class InputHandler : MonoBehaviour
 
     void Update()
     {
+        SetWishDir();
+    }
+
+    void SetWishDir()
+    {
         wishDir = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
@@ -35,6 +40,4 @@ public class InputHandler : MonoBehaviour
             wishDir += Vector3.right;
         }
     }
-
-    //Jump register logic, etc.
 }

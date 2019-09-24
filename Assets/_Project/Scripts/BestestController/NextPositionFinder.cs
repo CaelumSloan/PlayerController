@@ -9,6 +9,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
     //Refs
     private CharacterMover characterMover;
     private InputHandler inputHandler;
+    private GroundedChecker groundChecker;
 
     //State
     private Vector3 playerVelocity = Vector3.zero;
@@ -23,32 +24,52 @@ public class NextPositionFinder : MonoBehaviour, IAction
     [Tooltip("Ground friction")]
     [SerializeField] private float friction = 6;
     [SerializeField] private float gravity = 20.0f;
+    [Tooltip("The speed at which the character's up axis gains when hitting jump")]
+    [SerializeField] private float jumpSpeed = 8.0f;
+
+    //More Temp
+    bool wishJump = false;
 
     private void Awake()
     {
         BPhysicsWorld.Get().AddAction(this);
         characterMover = GetComponent<CharacterMover>();
         inputHandler = GetComponent<InputHandler>();
+        groundChecker = GetComponent<GroundedChecker>();
     }
 
     //Bullets version of FixedUpdate. 
     public void UpdateAction(CollisionWorld collisionWorld, float deltaTimeStep)
     {
+
         //Movement Logic
         Vector3 wishDir = transform.TransformDirection(inputHandler.GetWishDir()).normalized;
         Vector3 currentPos = transform.position;
 
+        QueueJump();
         ApplyFriction();
         Accelerate(wishDir, deltaTimeStep);
+        ApplyGravity(deltaTimeStep);
 
-        // air
-        //playerVelocity.y -= gravity*deltaTimeStep;
-        // ground
-        playerVelocity.y = -gravity * deltaTimeStep;
+        if (GroundCheck(deltaTimeStep))
+        {
+            GroundMove(deltaTimeStep);
+        }
 
         Vector3 targetPos = currentPos + (playerVelocity * deltaTimeStep); //Should I be multiplying by deltatime here?
 
         characterMover.MoveCharacter(collisionWorld, currentPos.ToBullet(), targetPos.ToBullet());
+    }
+
+    /// <summary>
+    /// Queues the next jump just like in Q3
+    /// </summary>
+    private void QueueJump()
+    {
+        if (Input.GetButtonDown("Jump") && !wishJump)
+            wishJump = true;
+        if (Input.GetButtonUp("Jump"))
+            wishJump = false;
     }
 
     private void ApplyFriction()
@@ -93,6 +114,33 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
         playerVelocity.x += accelspeed * wishdir.x;
         playerVelocity.z += accelspeed * wishdir.z;
+    }
+
+    private void GroundMove(float deltaTimeStep)
+    {
+        //Vertical
+        if (wishJump)
+        {
+            playerVelocity.y = jumpSpeed;
+            wishJump = false;
+        }
+    }
+
+    private void ApplyGravity(float deltaTimeStep)
+    {
+        if (GroundCheck(deltaTimeStep))
+        {
+            playerVelocity.y = -gravity * deltaTimeStep;
+        }
+        else
+        {
+            playerVelocity.y -= gravity * Time.deltaTime;
+        }
+    }
+
+    private bool GroundCheck(float deltaTimeStep)
+    {
+        return groundChecker.IsGrounded();
     }
 
     public void DebugDraw(IDebugDraw debugDrawer) { }
