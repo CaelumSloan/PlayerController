@@ -53,6 +53,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
     //Bullets version of FixedUpdate. 
     public void UpdateAction(CollisionWorld collisionWorld, float deltaTimeStep)
     {
+        //Super Jump
         jumpSpeed = Input.GetKey(KeyCode.LeftShift) ? 18 : 8;
 
         //Movement Logic
@@ -75,44 +76,53 @@ public class NextPositionFinder : MonoBehaviour, IAction
         characterMover.MoveCharacter(collisionWorld, currentPos.ToBullet(), targetPos.ToBullet());
     }
 
+    private void GroundMove(Vector3 wishDir, float deltaTimeStep)
+    {
+        ApplyFriction(deltaTimeStep);
+        Accelerate(wishDir, runAcceleration, deltaTimeStep);
+
+        // Reset the gravity velocity
+        playerVelocity.y = -gravity * deltaTimeStep;
+
+        //Ground Jump
+        if (wishJump)
+        {
+            playerVelocity.y = jumpSpeed;
+            wishJump = false;
+            jump = true;
+            StartCoroutine(JumpFix());
+            GetComponent<AudioSource>().Play();
+        }
+    }
+
     /// <summary>
     /// Queues the next jump just like in Q3
     /// </summary>
     private void QueueJump()
     {
-        //if (Input.GetMouseButtonDown(1) && !wishJump)
-        //    wishJump = true;
-        //if (Input.GetMouseButtonUp(1))
-        //    wishJump = false;
-
-        if (Input.GetKeyDown(KeyCode.Space) && !wishJump)
+        if (Input.GetMouseButtonDown(1) && !wishJump)
             wishJump = true;
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetMouseButtonUp(1))
             wishJump = false;
+
+        //if (Input.GetKeyDown(KeyCode.Space) && !wishJump)
+        //    wishJump = true;
+        //if (Input.GetKeyUp(KeyCode.Space))
+        //    wishJump = false;
     }
 
     private void ApplyFriction(float deltaTimeStep)
     {
-        Vector3 vec = playerVelocity; // Equivalent to: VectorCopy();
-        float speed;
-        float newspeed;
-        float control;
-        float drop;
-
+        Vector3 vec = playerVelocity;
         vec.y = 0.0f;
-        speed = vec.magnitude;
-        drop = 0.0f;
+        float speed = vec.magnitude;
 
-        /* Only if the player is on the ground then apply friction */
-        if (GroundCheck())
-        {
-            control = speed < runDeacceleration ? runDeacceleration : speed;
-            drop = !wishJump ? control * friction * Time.deltaTime : 0;
-        }
+        float control = Mathf.Max(speed, runDeacceleration);
+        float drop = wishJump ? 0 : control * friction * deltaTimeStep;
 
-        newspeed = speed - drop;
-        if (newspeed < 0)
-            newspeed = 0;
+        float newspeed = speed - drop;
+
+        if (newspeed < 0) newspeed = 0;
         if (speed > 0)
             newspeed /= speed;
 
@@ -136,31 +146,13 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
         playerVelocity.x += accelspeed * wishdir.x;
         playerVelocity.z += accelspeed * wishdir.z;
-    }
-
-    private void GroundMove(Vector3 wishDir, float deltaTimeStep)
-    {
-        ApplyFriction(deltaTimeStep);
-        Accelerate(wishDir, runAcceleration, deltaTimeStep);
-
-        // Reset the gravity velocity
-        playerVelocity.y = -gravity * deltaTimeStep;
-
-        //Ground Jump
-        if (wishJump)
-        {
-            playerVelocity.y = jumpSpeed;
-            wishJump = false;
-            jump = true;
-            StartCoroutine(JumpFix());
-            GetComponent<AudioSource>().Play();
-        }
-    }
+    }  
 
     private bool GroundCheck()
     {
         return groundChecker.IsGrounded() && !jump;
     }
+
 
     private void AirMove(Vector3 worldWishDir, Vector3 localWishDir, float deltaTimeStep)
     {
@@ -173,7 +165,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         float wishSpeed = moveSpeed;
 
         // If the player is ONLY strafing left or right
-        if (Mathf.Approximately(localWishDir.z,0) && !Mathf.Approximately(localWishDir.x, 0))
+        if (Mathf.Approximately(localWishDir.z, 0) && !Mathf.Approximately(localWishDir.x, 0))
         {
             if (wishSpeed > sideStrafeSpeed)
                 wishSpeed = sideStrafeSpeed;
