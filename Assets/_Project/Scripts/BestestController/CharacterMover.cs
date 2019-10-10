@@ -111,22 +111,14 @@ public class CharacterMover : MonoBehaviour
 
     void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal)
     {
-        Vector3 movementDirection = targetPosition - currentPosition;
-        float movementLength = movementDirection.Length;
-        if (movementLength > MathUtil.SIMD_EPSILON)
-        {
-            movementDirection.Normalize();
+        Vector3 movement = targetPosition - currentPosition;
 
-            Vector3 reflectDir = ComputeReflectionDirection(ref movementDirection, ref hitNormal);
-            reflectDir.Normalize();
+        float verticalComponent = movement.Y;
+        movement.Y = 0;
 
-            Vector3 perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
+        if (Mathf.Approximately(movement.Length, 0) || movement.normalized().Dot(hitNormal) > 0) return;
 
-            targetPosition = currentPosition;
-
-            Vector3 perpComponent = perpindicularDir * movementLength;
-            targetPosition += perpComponent;
-        }
+        targetPosition += currentPosition + PerpindicularComponent(hitNormal, movement.normalized()) + verticalComponent * Vector3.UnitY;
     }
 
     void PenetrationLoop(CollisionWorld collisionWorld)
@@ -212,23 +204,14 @@ public class CharacterMover : MonoBehaviour
     }
 
     #region Helper
-    static Vector3 ComputeReflectionDirection(ref Vector3 direction, ref Vector3 normal)
+    static Vector3 ParallelComponent(Vector3 movementVector, Vector3 collisionNormal)
     {
-        float dot;
-        Vector3.Dot(ref direction, ref normal, out dot);
-        return direction - (2.0f * dot) * normal;
+        return Vector3.Dot(movementVector, collisionNormal) * collisionNormal;
     }
 
-    static Vector3 ParallelComponent(ref Vector3 direction, ref Vector3 normal)
+    static Vector3 PerpindicularComponent(Vector3 direction, Vector3 normal)
     {
-        float magnitude;
-        Vector3.Dot(ref direction, ref normal, out magnitude);
-        return normal * magnitude;
-    }
-
-    static Vector3 PerpindicularComponent(ref Vector3 direction, ref Vector3 normal)
-    {
-        return direction - ParallelComponent(ref direction, ref normal);
+        return direction - ParallelComponent(direction, normal);
     }
     #endregion
 }
