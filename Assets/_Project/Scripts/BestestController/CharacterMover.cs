@@ -9,6 +9,10 @@ using Vector3 = BulletSharp.Math.Vector3;
 public class CharacterMover : MonoBehaviour
 {
     #region Attributes
+    //Exposed
+    [SerializeField] private int maximumIterations = 10;
+    [SerializeField] private float smallestFraction = 0.01f;
+
     Vector3 currentPosition;
     Vector3 targetPosition;
 
@@ -17,22 +21,19 @@ public class CharacterMover : MonoBehaviour
     // Keep track of the contact manifolds
     AlignedManifoldArray manifoldArray = new AlignedManifoldArray();
 
-    BPairCachingGhostObject ghostObject;
     ConvexShape collisionShape;
-
-    //Inside Ghost Object, makes code more readible
     CollisionObject collisionObject; 
-    PairCachingGhostObject pairCacheCollCast;
+    PairCachingGhostObject pairCacheCollObjCast; //Same thing as above just cast.
     #endregion
 
     void Awake()
     {
-        ghostObject = GetComponent<BPairCachingGhostObject>();
+        //Not to be confused with collision object.
         collisionShape = (ConvexShape)GetComponent<BCollisionShape>().GetCollisionShape();
-
-        //Makes code more readable
-        collisionObject = ghostObject.GetCollisionObject();
-        pairCacheCollCast = (PairCachingGhostObject) collisionObject;
+        //We don't need the ghost obj, just the collision obj so let's grab that.
+        collisionObject = GetComponent<BPairCachingGhostObject>().GetCollisionObject();
+        //Keeps us from doing this cast every two lines.
+        pairCacheCollObjCast = (PairCachingGhostObject) collisionObject;
     }
 
     public void MoveCharacter(CollisionWorld collisionWorld, Vector3 currentPosition, Vector3 requestedTargetPos)
@@ -46,21 +47,13 @@ public class CharacterMover : MonoBehaviour
         SetGameObjPosFromCollisionObj();
     }
 
-    void SetGameObjPosFromCollisionObj()
-    {
-        collisionObject.GetWorldTransform(out Matrix trans);
-
-        transform.position = BSExtensionMethods2.ExtractTranslationFromMatrix(ref trans);
-    }
-
-
     void PlayerStep(CollisionWorld collisionWorld)
     {
         Matrix worldTransformSave = collisionObject.WorldTransform;
 
         StepForwardAndStrafe(collisionWorld);
 
-        //Set only position changes.
+        //Set only position changes (keep old rot, scale values)
         worldTransformSave.Origin = currentPosition;
         //Update collisionObject.
         collisionObject.WorldTransform = worldTransformSave;
@@ -71,65 +64,52 @@ public class CharacterMover : MonoBehaviour
         Matrix start = Matrix.Identity, end = Matrix.Identity;
 
         float fraction = 1.0f;
-        float distSquared;
 
-        int maxIter = 10;
+        int maxIter = maximumIterations;
 
-        while (fraction > 0.01f && maxIter-- > 0)
+        while (fraction > smallestFraction && maxIter-- > 0)
         {
             start.Origin = currentPosition;
             end.Origin = targetPosition;
 
             Vector3 sweepDirNegative = currentPosition - targetPosition;
-
             KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(collisionObject, sweepDirNegative, 0f);
-            callback.CollisionFilterGroup = pairCacheCollCast.BroadphaseHandle.CollisionFilterGroup;
-            callback.CollisionFilterMask = pairCacheCollCast.BroadphaseHandle.CollisionFilterMask;
-
+            callback.CollisionFilterGroup = pairCacheCollObjCast.BroadphaseHandle.CollisionFilterGroup;
+            callback.CollisionFilterMask = pairCacheCollObjCast.BroadphaseHandle.CollisionFilterMask;
 
             float margin = collisionShape.Margin;
+
+            //Collision Test
+            pairCacheCollObjCast.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
             collisionShape.Margin = margin;
 
-            pairCacheCollCast.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
-
-            collisionShape.Margin = margin;
-
-
+            //The decimal percent of we can move along targetPosition - currentPosition before collision.
             fraction -= callback.ClosestHitFraction;
 
             if (callback.HasHit)
             {
-                // we moved only a fraction
+                //We moved only a fraction of target-current.
 
                 Vector3 hitNormalWorld = callback.HitNormalWorld;
-                UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
+                UpdateTargetPositionBasedOnCollision(ref hitNormalWorld);
                 Vector3 currentDir = targetPosition - currentPosition;
-                distSquared = currentDir.LengthSquared;
-                if (distSquared > MathUtil.SIMD_EPSILON)
-                {
-                    currentDir.Normalize();
-                    /* See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners." */
-                    Vector3.Dot(ref currentDir, ref normalizedDirection, out float dot);
-                    if (dot <= 0.0f)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
+
+                if (Mathf.Approximately(currentDir.LengthSquared, 0)) break;
+
+                //TODO: Break if velocity is against original velocity, stop early to avoid tiny oscilations in sloping corners.
             }
             else
             {
-                // we moved whole way
+                //We can move the requested to the requested position. Therefore fraction > smallestFraction. 
                 currentPosition = targetPosition;
+                //But I don't trust that so imma break.
+                break;
             }
         }
 
     }
 
-    void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal, float normalMag)
+    void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal)
     {
         Vector3 movementDirection = targetPosition - currentPosition;
         float movementLength = movementDirection.Length;
@@ -145,11 +125,9 @@ public class CharacterMover : MonoBehaviour
             perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
 
             targetPosition = currentPosition;
-            if (normalMag != 0.0f)
-            {
-                Vector3 perpComponent = perpindicularDir * (normalMag * movementLength);
-                targetPosition += perpComponent;
-            }
+
+            Vector3 perpComponent = perpindicularDir * movementLength;
+            targetPosition += perpComponent;
         }
     }
 
@@ -177,16 +155,16 @@ public class CharacterMover : MonoBehaviour
 
         bool penetration = false;
 
-        collisionWorld.Dispatcher.DispatchAllCollisionPairs(pairCacheCollCast.OverlappingPairCache, collisionWorld.DispatchInfo, collisionWorld.Dispatcher);
+        collisionWorld.Dispatcher.DispatchAllCollisionPairs(pairCacheCollObjCast.OverlappingPairCache, collisionWorld.DispatchInfo, collisionWorld.Dispatcher);
 
         currentPosition = collisionObject.WorldTransform.Origin;
 
         float maxPen = 0f;
-        for (int i = 0; i < pairCacheCollCast.OverlappingPairCache.NumOverlappingPairs; i++)
+        for (int i = 0; i < pairCacheCollObjCast.OverlappingPairCache.NumOverlappingPairs; i++)
         {
             manifoldArray.Clear();
 
-            BroadphasePair collisionPair = pairCacheCollCast.OverlappingPairCache.OverlappingPairArray[i];
+            BroadphasePair collisionPair = pairCacheCollObjCast.OverlappingPairCache.OverlappingPairArray[i];
 
             CollisionObject obj0 = collisionPair.Proxy0.ClientObject as CollisionObject;
             CollisionObject obj1 = collisionPair.Proxy1.ClientObject as CollisionObject;
@@ -226,6 +204,13 @@ public class CharacterMover : MonoBehaviour
         collisionObject.WorldTransform = newTrans;
 
         return penetration;
+    }
+
+    void SetGameObjPosFromCollisionObj()
+    {
+        collisionObject.GetWorldTransform(out Matrix trans);
+
+        transform.position = BSExtensionMethods2.ExtractTranslationFromMatrix(ref trans);
     }
 
     #region Helper
