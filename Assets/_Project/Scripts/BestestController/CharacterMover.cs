@@ -95,6 +95,7 @@ public class CharacterMover : MonoBehaviour
             collisionObjectCastToPairCache.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
             collisionShape.Margin = margin;
 
+            //The decimal percent of we can move along targetPosition - currentPosition before collision.
             fraction -= callback.ClosestHitFraction;
 
             if (callback.HasHit)
