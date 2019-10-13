@@ -26,6 +26,7 @@ public class CharacterMover : MonoBehaviour
 
     void Awake()
     {
+        //Not to be confused with collision object.
         collisionShape = (ConvexShape)GetComponent<BCollisionShape>().GetCollisionShape();
 
         //Makes code more readable
