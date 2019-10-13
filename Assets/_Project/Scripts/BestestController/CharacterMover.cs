@@ -103,7 +103,7 @@ public class CharacterMover : MonoBehaviour
                 Vector3 hitNormalWorld = callback.HitNormalWorld;
                 UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
                 Vector3 currentDir = targetPosition - currentPosition;
-                if (Mathf.Approximately(currentDir.LengthSquared, 0))
+                if (!Mathf.Approximately(currentDir.LengthSquared, 0))
                 {
                     currentDir.Normalize();
                     /* See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners." */
