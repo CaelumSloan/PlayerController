@@ -17,7 +17,6 @@ public class CharacterMover : MonoBehaviour
     // Keep track of the contact manifolds
     AlignedManifoldArray manifoldArray = new AlignedManifoldArray();
 
-    BPairCachingGhostObject ghostObject;
     ConvexShape collisionShape;
 
     //Inside Ghost Object, makes code more readible
@@ -27,11 +26,10 @@ public class CharacterMover : MonoBehaviour
 
     void Awake()
     {
-        ghostObject = GetComponent<BPairCachingGhostObject>();
         collisionShape = (ConvexShape)GetComponent<BCollisionShape>().GetCollisionShape();
 
         //Makes code more readable
-        collisionObject = ghostObject.GetCollisionObject();
+        collisionObject = GetComponent<BPairCachingGhostObject>().GetCollisionObject();
         pairCacheCollCast = (PairCachingGhostObject) collisionObject;
     }
 
