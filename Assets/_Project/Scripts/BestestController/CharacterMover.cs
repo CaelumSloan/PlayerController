@@ -106,7 +106,7 @@ public class CharacterMover : MonoBehaviour
                 UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
                 Vector3 currentDir = targetPosition - currentPosition;
 
-                if (!Mathf.Approximately(currentDir.LengthSquared, 0))
+                if (Mathf.Approximately(currentDir.LengthSquared, 0))
                     break;
 
                 currentDir.Normalize();
