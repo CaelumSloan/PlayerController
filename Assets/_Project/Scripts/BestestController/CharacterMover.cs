@@ -71,7 +71,6 @@ public class CharacterMover : MonoBehaviour
         Matrix start = Matrix.Identity, end = Matrix.Identity;
 
         float fraction = 1.0f;
-        float distSquared;
 
         int maxIter = 10;
 
@@ -104,8 +103,7 @@ public class CharacterMover : MonoBehaviour
                 Vector3 hitNormalWorld = callback.HitNormalWorld;
                 UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
                 Vector3 currentDir = targetPosition - currentPosition;
-                distSquared = currentDir.LengthSquared;
-                if (distSquared > MathUtil.SIMD_EPSILON)
+                if (Mathf.Approximately(currentDir.LengthSquared, 0))
                 {
                     currentDir.Normalize();
                     /* See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners." */
