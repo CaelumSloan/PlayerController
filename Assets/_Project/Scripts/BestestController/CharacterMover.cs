@@ -14,13 +14,11 @@ public class CharacterMover : MonoBehaviour
     [Range(0.001f, 0.1f)]
     [SerializeField] private float smallestFraction = 0.01f;
 
-
     Vector3 currentPosition;
     Vector3 targetPosition;
 
     // Keep track of the contact manifolds
     AlignedManifoldArray manifoldArray = new AlignedManifoldArray();
-
     
     ConvexShape collisionShape;
 
