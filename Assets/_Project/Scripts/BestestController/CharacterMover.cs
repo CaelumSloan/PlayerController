@@ -100,7 +100,7 @@ public class CharacterMover : MonoBehaviour
 
             if (callback.HasHit)
             {
-                // we moved only a fraction
+                //We moved only a fraction of target-current.
 
                 Vector3 hitNormalWorld = callback.HitNormalWorld;
                 UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
