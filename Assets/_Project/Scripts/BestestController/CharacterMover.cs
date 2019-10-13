@@ -110,7 +110,7 @@ public class CharacterMover : MonoBehaviour
             }
             else
             {
-                // we moved whole way
+                //We can move the requested to the requested position. Therefore fraction > smallestFraction. 
                 currentPosition = targetPosition;
             }
         }
