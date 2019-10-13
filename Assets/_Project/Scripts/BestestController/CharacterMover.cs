@@ -125,14 +125,12 @@ public class CharacterMover : MonoBehaviour
         Vector3 movementDirection = movement.normalized();
         float movementLength = movement.Length;
 
-        if (!Mathf.Approximately(movementLength,0))
+        if (!Mathf.Approximately(movementLength, 0))
         {
             Vector3 reflectDir = ComputeReflectionDirection(ref movementDirection, ref hitNormal);
             reflectDir.Normalize();
 
-            Vector3 perpindicularDir;
-
-            perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
+            Vector3 perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
 
             targetPosition = currentPosition;
 
