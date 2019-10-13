@@ -771,6 +771,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccbb4dbee7e435849b3f899e3fb8d988, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maximumIterations: 10
+  smallestFraction: 0.01
 --- !u!114 &297604198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7437,6 +7439,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Stairs
+      objectReference: {fileID: 0}
+    - target: {fileID: 6123377550437168711, guid: 04cd0d97ca1378742b18f2522f926091,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6123377550437168710, guid: 04cd0d97ca1378742b18f2522f926091,
         type: 3}
