@@ -18,8 +18,6 @@ public class CharacterMover : MonoBehaviour
     Vector3 currentPosition;
     Vector3 targetPosition;
 
-    Vector3 normalizedDirection;
-
     // Keep track of the contact manifolds
     AlignedManifoldArray manifoldArray = new AlignedManifoldArray();
 
@@ -106,16 +104,9 @@ public class CharacterMover : MonoBehaviour
                 UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
                 Vector3 currentDir = targetPosition - currentPosition;
 
-                if (Mathf.Approximately(currentDir.LengthSquared, 0))
-                    break;
+                if (Mathf.Approximately(currentDir.LengthSquared, 0)) break;
 
-                currentDir.Normalize();
-                /* See Quake2: "If velocity is against original velocity, stop ead to avoid tiny oscilations in sloping corners." */
-                Vector3.Dot(ref currentDir, ref normalizedDirection, out float dot);
-                if (dot <= 0.0f)
-                {
-                    break;
-                }
+                //TODO: Break if velocity is against original velocity, stop early to avoid tiny oscilations in sloping corners.
             }
             else
             {
