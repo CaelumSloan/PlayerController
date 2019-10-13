@@ -60,7 +60,7 @@ public class CharacterMover : MonoBehaviour
 
         StepForwardAndStrafe(collisionWorld);
 
-        //Set only position changes.
+        //Set only position changes (keep old rot, scale values)
         worldTransformSave.Origin = currentPosition;
         //Update collisionObject.
         collisionObject.WorldTransform = worldTransformSave;
