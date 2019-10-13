@@ -9,8 +9,10 @@ using Vector3 = BulletSharp.Math.Vector3;
 public class CharacterMover : MonoBehaviour
 {
     #region Attributes
-    [Range(0, 15)]
+    [Range(2, 15)]
     [SerializeField] private int maximumIterations = 10;
+    [Range(0.001f, 0.1f)]
+    [SerializeField] private float smallestFraction = 0.01f;
 
 
     Vector3 currentPosition;
@@ -78,7 +80,7 @@ public class CharacterMover : MonoBehaviour
 
         int maxIter = maximumIterations;
 
-        while (fraction > 0.01f && maxIter-- > 0)
+        while (fraction > smallestFraction && maxIter-- > 0)
         {
             start.Origin = currentPosition;
             end.Origin = targetPosition;
