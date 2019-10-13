@@ -121,12 +121,12 @@ public class CharacterMover : MonoBehaviour
 
     void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal)
     {
-        Vector3 movementDirection = targetPosition - currentPosition;
+        Vector3 movement = targetPosition - currentPosition;
+        Vector3 movementDirection = movement.normalized();
+        float movementLength = movement.Length;
 
-        if (!Mathf.Approximately(movementDirection.Length, 0))
+        if (!Mathf.Approximately(movementLength,0))
         {
-            movementDirection.Normalize();
-
             Vector3 reflectDir = ComputeReflectionDirection(ref movementDirection, ref hitNormal);
             reflectDir.Normalize();
 
@@ -136,7 +136,7 @@ public class CharacterMover : MonoBehaviour
 
             targetPosition = currentPosition;
 
-            Vector3 perpComponent = perpindicularDir * movementDirection.Length;
+            Vector3 perpComponent = perpindicularDir * movementLength;
             targetPosition += perpComponent;
         }
     }
