@@ -101,7 +101,7 @@ public class CharacterMover : MonoBehaviour
                 //We moved only a fraction of target-current.
 
                 Vector3 hitNormalWorld = callback.HitNormalWorld;
-                UpdateTargetPositionBasedOnCollision(ref hitNormalWorld, 1f);
+                UpdateTargetPositionBasedOnCollision(ref hitNormalWorld);
                 Vector3 currentDir = targetPosition - currentPosition;
 
                 if (Mathf.Approximately(currentDir.LengthSquared, 0)) break;
@@ -119,7 +119,7 @@ public class CharacterMover : MonoBehaviour
 
     }
 
-    void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal, float normalMag)
+    void UpdateTargetPositionBasedOnCollision(ref Vector3 hitNormal)
     {
         Vector3 movementDirection = targetPosition - currentPosition;
         float movementLength = movementDirection.Length;
@@ -135,9 +135,9 @@ public class CharacterMover : MonoBehaviour
             perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
 
             targetPosition = currentPosition;
-            if (normalMag != 0.0f)
+            if (1 != 0.0f)
             {
-                Vector3 perpComponent = perpindicularDir * (normalMag * movementLength);
+                Vector3 perpComponent = perpindicularDir * (1 * movementLength);
                 targetPosition += perpComponent;
             }
         }
