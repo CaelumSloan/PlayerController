@@ -11,7 +11,7 @@ public class CharacterMover : MonoBehaviour
     #region Attributes
     [Range(2, 15)]
     [SerializeField] private int maximumIterations = 10;
-    [Range(0.001f, 0.1f)]
+    [Range(0.001f, 0.025f)]
     [SerializeField] private float smallestFraction = 0.01f;
 
     Vector3 currentPosition;
