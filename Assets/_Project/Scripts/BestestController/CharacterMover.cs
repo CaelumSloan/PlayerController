@@ -135,11 +135,9 @@ public class CharacterMover : MonoBehaviour
             perpindicularDir = PerpindicularComponent(ref reflectDir, ref hitNormal);
 
             targetPosition = currentPosition;
-            if (1 != 0.0f)
-            {
-                Vector3 perpComponent = perpindicularDir * (1 * movementLength);
-                targetPosition += perpComponent;
-            }
+
+            Vector3 perpComponent = perpindicularDir * (movementLength);
+            targetPosition += perpComponent;
         }
     }
 
