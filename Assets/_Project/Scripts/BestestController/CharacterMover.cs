@@ -112,6 +112,8 @@ public class CharacterMover : MonoBehaviour
             {
                 //We can move the requested to the requested position. Therefore fraction > smallestFraction. 
                 currentPosition = targetPosition;
+                //But I don't trust that so imma break.
+                break;
             }
         }
 
