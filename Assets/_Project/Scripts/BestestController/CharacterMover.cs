@@ -17,11 +17,11 @@ public class CharacterMover : MonoBehaviour
     // Keep track of the contact manifolds
     AlignedManifoldArray manifoldArray = new AlignedManifoldArray();
 
+    
     ConvexShape collisionShape;
 
-    //Inside Ghost Object, makes code more readible
     CollisionObject collisionObject; 
-    PairCachingGhostObject pairCacheCollCast;
+    PairCachingGhostObject collisionObjectCastToPairCache; //Same thing as above just cast.
     #endregion
 
     void Awake()
@@ -31,7 +31,8 @@ public class CharacterMover : MonoBehaviour
 
         //Makes code more readable
         collisionObject = GetComponent<BPairCachingGhostObject>().GetCollisionObject();
-        pairCacheCollCast = (PairCachingGhostObject) collisionObject;
+        //Keeps us from doing this cast every two lines.
+        collisionObjectCastToPairCache = (PairCachingGhostObject) collisionObject;
     }
 
     public void MoveCharacter(CollisionWorld collisionWorld, Vector3 currentPosition, Vector3 requestedTargetPos)
@@ -82,14 +83,14 @@ public class CharacterMover : MonoBehaviour
             Vector3 sweepDirNegative = currentPosition - targetPosition;
 
             KinematicClosestNotMeConvexResultCallback callback = new KinematicClosestNotMeConvexResultCallback(collisionObject, sweepDirNegative, 0f);
-            callback.CollisionFilterGroup = pairCacheCollCast.BroadphaseHandle.CollisionFilterGroup;
-            callback.CollisionFilterMask = pairCacheCollCast.BroadphaseHandle.CollisionFilterMask;
+            callback.CollisionFilterGroup = collisionObjectCastToPairCache.BroadphaseHandle.CollisionFilterGroup;
+            callback.CollisionFilterMask = collisionObjectCastToPairCache.BroadphaseHandle.CollisionFilterMask;
 
 
             float margin = collisionShape.Margin;
             collisionShape.Margin = margin;
 
-            pairCacheCollCast.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
+            collisionObjectCastToPairCache.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
 
             collisionShape.Margin = margin;
 
@@ -176,16 +177,16 @@ public class CharacterMover : MonoBehaviour
 
         bool penetration = false;
 
-        collisionWorld.Dispatcher.DispatchAllCollisionPairs(pairCacheCollCast.OverlappingPairCache, collisionWorld.DispatchInfo, collisionWorld.Dispatcher);
+        collisionWorld.Dispatcher.DispatchAllCollisionPairs(collisionObjectCastToPairCache.OverlappingPairCache, collisionWorld.DispatchInfo, collisionWorld.Dispatcher);
 
         currentPosition = collisionObject.WorldTransform.Origin;
 
         float maxPen = 0f;
-        for (int i = 0; i < pairCacheCollCast.OverlappingPairCache.NumOverlappingPairs; i++)
+        for (int i = 0; i < collisionObjectCastToPairCache.OverlappingPairCache.NumOverlappingPairs; i++)
         {
             manifoldArray.Clear();
 
-            BroadphasePair collisionPair = pairCacheCollCast.OverlappingPairCache.OverlappingPairArray[i];
+            BroadphasePair collisionPair = collisionObjectCastToPairCache.OverlappingPairCache.OverlappingPairArray[i];
 
             CollisionObject obj0 = collisionPair.Proxy0.ClientObject as CollisionObject;
             CollisionObject obj1 = collisionPair.Proxy1.ClientObject as CollisionObject;
