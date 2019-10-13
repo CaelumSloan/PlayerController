@@ -869,7 +869,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableDebugMode: 1
   heightExtension: 0.15
-  whiskerDist: 1.22
+  whiskerDist: 0.75
 --- !u!82 &297604204
 AudioSource:
   m_ObjectHideFlags: 0
