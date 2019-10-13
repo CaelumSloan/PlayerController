@@ -91,14 +91,9 @@ public class CharacterMover : MonoBehaviour
             callback.CollisionFilterGroup = collisionObjectCastToPairCache.BroadphaseHandle.CollisionFilterGroup;
             callback.CollisionFilterMask = collisionObjectCastToPairCache.BroadphaseHandle.CollisionFilterMask;
 
-
             float margin = collisionShape.Margin;
-            collisionShape.Margin = margin;
-
             collisionObjectCastToPairCache.ConvexSweepTestRef(collisionShape, ref start, ref end, callback, collisionWorld.DispatchInfo.AllowedCcdPenetration);
-
             collisionShape.Margin = margin;
-
 
             fraction -= callback.ClosestHitFraction;
 
