@@ -13,7 +13,8 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
     //State
     private Vector3 playerVelocity = Vector3.zero;
-    
+    public Vector3 PlayerVelocity { get { return playerVelocity; } private set { playerVelocity = value; } }
+
     //Exposed
     [Tooltip("Ground move speed")]
     [SerializeField] private float moveSpeed = 7.0f;
