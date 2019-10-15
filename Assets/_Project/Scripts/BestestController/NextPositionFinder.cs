@@ -51,10 +51,10 @@ public class NextPositionFinder : MonoBehaviour, IAction
         groundChecker = GetComponent<GroundedChecker>();
     }
 
-    //Bullets version of FixedUpdate. 
+    //Bullet Physic's version of FixedUpdate. 
     public void UpdateAction(CollisionWorld collisionWorld, float deltaTimeStep)
     {
-        //Super Jump
+        //Jank Super Jump
         jumpSpeed = Input.GetKey(KeyCode.LeftShift) ? 18 : 8;
 
         //Movement Logic
@@ -66,6 +66,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         if (GroundCheck())
         {
             GroundMove(worldWishDir, deltaTimeStep);
+            GroundJump();
         }
         else
         {
@@ -82,18 +83,8 @@ public class NextPositionFinder : MonoBehaviour, IAction
         ApplyFriction(deltaTimeStep);
         Accelerate(wishDir, runAcceleration, deltaTimeStep);
 
-        // Reset the gravity velocity
+        // Reset the gravity velocity. Seems unnecesary...
         playerVelocity.y = -gravity * deltaTimeStep;
-
-        //Ground Jump
-        if (wishJump)
-        {
-            playerVelocity.y = jumpSpeed;
-            wishJump = false;
-            jump = true;
-            StartCoroutine(JumpFix());
-            GetComponent<AudioSource>().Play();
-        }
     }
 
     /// <summary>
@@ -118,14 +109,18 @@ public class NextPositionFinder : MonoBehaviour, IAction
         vec.y = 0.0f;
         float speed = vec.magnitude;
 
+        // Not 100% why friction increases when speed > runDeacceleration, seems fine though.
         float control = Mathf.Max(speed, runDeacceleration);
+        // Friction is runDeacceleration * friction unless a jump is queued
         float drop = wishJump ? 0 : control * friction * deltaTimeStep;
 
         float newspeed = speed - drop;
 
+        //Obviously friction won't cause you to go backward, just stop.
         if (newspeed < 0) newspeed = 0;
         if (speed > 0)
-            newspeed /= speed;
+            //Find the value needed to scale playerVelocity by
+            newspeed /= speed; 
 
         playerVelocity.x *= newspeed;
         playerVelocity.z *= newspeed;
@@ -133,15 +128,11 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
     private void Accelerate(Vector3 wishdir, float accel, float deltaTimeStep)
     {
-        float addspeed;
-        float accelspeed;
-        float currentspeed;
-
-        currentspeed = Vector3.Dot(playerVelocity, wishdir);
-        addspeed = moveSpeed - currentspeed;
+        float currentspeed = Vector3.Dot(playerVelocity, wishdir);
+        float addspeed = moveSpeed - currentspeed;
         if (addspeed <= 0)
             return;
-        accelspeed = accel * deltaTimeStep * moveSpeed;
+        float accelspeed = accel * deltaTimeStep * moveSpeed;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
@@ -154,6 +145,18 @@ public class NextPositionFinder : MonoBehaviour, IAction
         return groundChecker.IsGrounded() && !jump;
     }
 
+    private void GroundJump()
+    {
+        //Ground Jump
+        if (wishJump)
+        {
+            playerVelocity.y = jumpSpeed;
+            wishJump = false;
+            jump = true;
+            StartCoroutine(JumpFix());
+            GetComponent<AudioSource>().Play();
+        }
+    }
 
     private void AirMove(Vector3 worldWishDir, Vector3 localWishDir, float deltaTimeStep)
     {
@@ -173,7 +176,8 @@ public class NextPositionFinder : MonoBehaviour, IAction
             accel = sideStrafeAcceleration;
         }
 
-        Accelerate(worldWishDir, wishSpeed, accel);
+        //accel
+        Accelerate(worldWishDir, wishSpeed, deltaTimeStep);
         if (airControl > 0)
             AirControl(worldWishDir, localWishDir, moveSpeed, deltaTimeStep);
 
