@@ -14,6 +14,8 @@ public class NextPositionFinder : MonoBehaviour, IAction
     //State
     private Vector3 playerVelocity = Vector3.zero;
     public Vector3 PlayerVelocity { get { return playerVelocity; } private set { playerVelocity = value; } }
+    public float MaxSpeed { get { return moveSpeed; } private set { moveSpeed = value; } }
+
 
     //Exposed
     [Tooltip("Ground move speed")]
@@ -60,6 +62,9 @@ public class NextPositionFinder : MonoBehaviour, IAction
         //Movement Logic
         Vector3 localWishDir = inputHandler.GetWishDir();
         Vector3 worldWishDir = transform.TransformDirection(inputHandler.GetWishDir()).normalized;
+
+        Debug.DrawRay(transform.position, playerVelocity, Color.red);
+        Debug.DrawRay(transform.position, worldWishDir * moveSpeed / 2f, Color.blue);
 
         QueueJump();
 
@@ -189,7 +194,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
             accel = sideStrafeAcceleration;
         }
 
-        //accel
+        //Note no friction in air.
         Accelerate(worldWishDir, wishSpeed, accel, deltaTimeStep);
         if (airControl > 0)
             AirControl(worldWishDir, localWishDir, moveSpeed, deltaTimeStep);

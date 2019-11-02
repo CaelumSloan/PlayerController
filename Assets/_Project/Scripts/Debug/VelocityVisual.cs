@@ -9,7 +9,7 @@ public class VelocityVisual : MonoBehaviour
     [SerializeField] Text velocityText;
 
     private float lastSpeed = Mathf.NegativeInfinity;
-    private float currentSpeed = Mathf.NegativeInfinity;
+    private float currentSpeed = 0;
 
     void Update()
     {
