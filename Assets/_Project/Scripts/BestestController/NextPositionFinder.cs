@@ -103,6 +103,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         //    wishJump = false;
     }
 
+    //Subtracts friction (runDeacceleration * friction) from current speed.
     private void ApplyFriction(float deltaTimeStep)
     {
         Vector3 vec = playerVelocity;
@@ -126,16 +127,26 @@ public class NextPositionFinder : MonoBehaviour, IAction
         playerVelocity.z *= newspeed;
     }
 
+    //Adds scaled wishDir to playerVelocity.
+    //https://www.desmos.com/calculator/vef9eqpcdt
     private void Accelerate(Vector3 wishdir, float accel, float deltaTimeStep)
     {
+        //Amount wishDir is in dir of vel between playerVelocity (same dir) and -playerVelocity.
         float currentspeed = Vector3.Dot(playerVelocity, wishdir);
+        //Relative to move speed
         float addspeed = moveSpeed - currentspeed;
+        //No acceleration if you're faster than move speed. tsk tsk.
         if (addspeed <= 0)
             return;
-        float accelspeed = accel * deltaTimeStep * moveSpeed;
+
+        float accelspeed = moveSpeed * accel * deltaTimeStep;
+        //When wishdir and playerVelocity near same dir, use the smaller addspeed val.
+        //Note when (and as approach) wishdir=playerVelocity, addspeed = (and approaches) movespeed.
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
+        //However, speed will still increase above moveSpeed when wishDir is acute and not equal to playerVelocity
+        //This is where b-hopping mouse wiggle comes from.
         playerVelocity.x += accelspeed * wishdir.x;
         playerVelocity.z += accelspeed * wishdir.z;
     }  
