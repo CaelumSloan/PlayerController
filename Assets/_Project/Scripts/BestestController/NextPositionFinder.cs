@@ -81,7 +81,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
     private void GroundMove(Vector3 wishDir, float deltaTimeStep)
     {
         ApplyFriction(deltaTimeStep);
-        Accelerate(wishDir, runAcceleration, deltaTimeStep);
+        Accelerate(wishDir, moveSpeed, runAcceleration, deltaTimeStep);
 
         // Reset the gravity velocity. Seems unnecesary...
         playerVelocity.y = -gravity * deltaTimeStep;
@@ -129,24 +129,26 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
     //Adds scaled wishDir to playerVelocity.
     //https://www.desmos.com/calculator/vef9eqpcdt
-    private void Accelerate(Vector3 wishdir, float accel, float deltaTimeStep)
+    private void Accelerate(Vector3 wishdir, float wishspeed, float accel, float deltaTimeStep)
     {
         //Amount wishDir is in dir of vel between playerVelocity (same dir) and -playerVelocity.
         float currentspeed = Vector3.Dot(playerVelocity, wishdir);
-        //Relative to move speed
-        float addspeed = moveSpeed - currentspeed;
-        //No acceleration if you're faster than move speed. tsk tsk.
+        //Relative to wishspeed
+        float addspeed = wishspeed - currentspeed;
+        //No acceleration if you're faster than wishspeed. tsk tsk.
         if (addspeed <= 0)
             return;
 
-        float accelspeed = moveSpeed * accel * deltaTimeStep;
+        float accelspeed = wishspeed * accel * deltaTimeStep;
         //When wishdir and playerVelocity near same dir, use the smaller addspeed val.
-        //Note when (and as approach) wishdir=playerVelocity, addspeed = (and approaches) movespeed.
+        //Note when (and as approach) wishdir=playerVelocity, addspeed = (and approaches) wishspeed.
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
-        //However, speed will still increase above moveSpeed when wishDir is acute and not equal to playerVelocity
+        //However, speed will still increase above wishspeed when wishDir is acute and not equal to playerVelocity
         //This is where b-hopping mouse wiggle comes from.
+        //It also means turning such that each update tick holds wish dir acute to velocity
+        //helps gain speed each frame. i.e. Turning neither too slow or too fast will not lose speed, as one might expect.
         playerVelocity.x += accelspeed * wishdir.x;
         playerVelocity.z += accelspeed * wishdir.z;
     }  
@@ -188,7 +190,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
         }
 
         //accel
-        Accelerate(worldWishDir, wishSpeed, deltaTimeStep);
+        Accelerate(worldWishDir, wishSpeed, accel, deltaTimeStep);
         if (airControl > 0)
             AirControl(worldWishDir, localWishDir, moveSpeed, deltaTimeStep);
 
