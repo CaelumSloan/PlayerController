@@ -20,7 +20,9 @@ public class VelocityVisual : MonoBehaviour
 
         if (currentSpeed > lastSpeed) velocityText.color = Color.green;
         else if (currentSpeed < lastSpeed) velocityText.color = Color.red;
-        else velocityText.color = Color.white;
+        else if (currentSpeed == 1400) velocityText.color = Color.blue;
+        else if (currentSpeed != 1750) velocityText.color = Color.white;
+        else velocityText.color = Color.yellow;
 
         lastSpeed = currentSpeed;
     }
