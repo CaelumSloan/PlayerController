@@ -989,6 +989,7 @@ GameObject:
   - component: {fileID: 297604202}
   - component: {fileID: 297604203}
   - component: {fileID: 297604204}
+  - component: {fileID: 297604205}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1083,7 +1084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e4a6f3be7e9e694d8980bb3d569cabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
+  moveSpeed: 14
   runAcceleration: 14
   runDeacceleration: 10
   airAcceleration: 2
@@ -1220,6 +1221,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &297604205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297604195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83351e16fb37f7f438ba3044775c8ea9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextPositionFinder: {fileID: 297604201}
 --- !u!1 &420497410
 GameObject:
   m_ObjectHideFlags: 0
@@ -1580,6 +1594,7 @@ GameObject:
   - component: {fileID: 485200551}
   - component: {fileID: 485200555}
   - component: {fileID: 485200554}
+  - component: {fileID: 485200556}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1739,6 +1754,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   depthTextureMode: 2
+--- !u!114 &485200556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485200549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc3e85b8b17a5024e88f2d01a692ea9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camera: {fileID: 485200553}
+  fovEffectStrength: 2.5
 --- !u!1 &488950819
 GameObject:
   m_ObjectHideFlags: 0
@@ -2188,6 +2217,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 297604201}
+  camera: {fileID: 485200553}
 --- !u!1 &748643054
 GameObject:
   m_ObjectHideFlags: 0
@@ -7353,7 +7383,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2103288703
 MonoBehaviour:
   m_ObjectHideFlags: 0
