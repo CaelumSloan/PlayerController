@@ -78,9 +78,19 @@ public class NextPositionFinder : MonoBehaviour, IAction
             AirMove(worldWishDir, localWishDir, deltaTimeStep);
         }
 
+        UserInputVelocityClamp();
         Vector3 currentPos = transform.position;
         Vector3 targetPos = currentPos + (playerVelocity * deltaTimeStep); //Should I be multiplying by deltatime here?
         characterMover.MoveCharacter(collisionWorld, currentPos.ToBullet(), targetPos.ToBullet());
+    }
+
+    private void UserInputVelocityClamp()
+    {
+        var velCop = playerVelocity;
+        velCop.y = 0;
+        velCop = Vector3.ClampMagnitude(velCop, 17.50f);
+        playerVelocity.x = velCop.x;
+        playerVelocity.z = velCop.z;
     }
 
     private void GroundMove(Vector3 wishDir, float deltaTimeStep)

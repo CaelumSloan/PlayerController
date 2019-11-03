@@ -1005,7 +1005,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 297604195}
   m_LocalRotation: {x: -0, y: -0.000000029802319, z: -0, w: 1}
-  m_LocalPosition: {x: -25.25, y: 7.5, z: 9.5}
+  m_LocalPosition: {x: -7.5, y: 85, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 426364150}
@@ -1085,15 +1085,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 14
-  runAcceleration: 14
-  runDeacceleration: 10
-  airAcceleration: 2
-  airDecceleration: 2
+  runAcceleration: 10.5
+  runDeacceleration: 13
+  airAcceleration: 6
+  airDecceleration: 6
   airControl: 0.3
   friction: 6
   gravity: 20
   jumpSpeed: 8
-  sideStrafeAcceleration: 50
+  sideStrafeAcceleration: 20
   sideStrafeSpeed: 1
 --- !u!114 &297604202
 MonoBehaviour:
@@ -7383,7 +7383,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2103288703
 MonoBehaviour:
   m_ObjectHideFlags: 0

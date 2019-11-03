@@ -9,7 +9,7 @@ public class SpeedFOV : MonoBehaviour
 
     private float startFov = 90;
 
-    private void Start()
+    private void Awake()
     {
         startFov = camera.fieldOfView;
     }
