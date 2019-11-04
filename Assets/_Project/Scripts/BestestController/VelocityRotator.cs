@@ -10,7 +10,8 @@ public class VelocityRotator : MonoBehaviour
     [SerializeField] private new Camera camera;
 
     float acceleration = 0;
-    Queue<float> lastSpeeds = new Queue<float>(5);
+    [SerializeField] private float rotationDegrees = 7.5f;
+    [SerializeField] private float accelCausingMaxEffect = 350f;
 
     void Update()
     {
@@ -18,7 +19,7 @@ public class VelocityRotator : MonoBehaviour
         {
             var cross = Vector3.Cross(transform.InverseTransformDirection(player.PlayerVelocity.normalized), Vector3.up);
             var normAngle = 1 - Vector3.Angle(camera.transform.forward, PlayerRefrenceHolder.Instance.nextPositionFinder.PlayerVelocity) / 180;
-            transform.localRotation = Quaternion.Slerp(Quaternion.identity, Quaternion.AngleAxis(-7.5f, cross), Mathf.Clamp01(player.PlayerVelocity.magnitude / (1.5f * player.MaxSpeed)) * normAngle * Mathf.Clamp01(acceleration/350f));
+            transform.localRotation = Quaternion.Slerp(Quaternion.identity, Quaternion.AngleAxis(-rotationDegrees, cross), Mathf.Clamp01(player.PlayerVelocity.magnitude / player.MaxSpeed) * normAngle * Mathf.Clamp01(acceleration/accelCausingMaxEffect));
         }
         else
             transform.localRotation = Quaternion.identity;
@@ -29,18 +30,13 @@ public class VelocityRotator : MonoBehaviour
         acceleration = AccelerationFinder();
     }
 
-    float i=0;
+    float lastVel=0;
     float AccelerationFinder()
     {
-        float last=0;
-        if (i < 6) i++;
-        else
-            last=lastSpeeds.Dequeue();
-
         var vel = player.PlayerVelocity;
         vel.y = 0;
-        lastSpeeds.Enqueue(vel.magnitude);
-
-        return Mathf.Abs(last-vel.magnitude) / (Time.deltaTime * lastSpeeds.Count);
+        var accel = Mathf.Abs(lastVel - vel.magnitude) / Time.deltaTime;
+        lastVel = vel.magnitude;
+        return accel;
     }
 }

@@ -22,7 +22,7 @@ public class SpeedFOV : MonoBehaviour
         var speed= vel.magnitude;
 
         var normAngle = 1-Vector3.Angle(camera.transform.forward, PlayerRefrenceHolder.Instance.nextPositionFinder.PlayerVelocity) / 180;
-        float t = Mathf.Clamp01(speed / (1.5f * PlayerRefrenceHolder.Instance.nextPositionFinder.MaxSpeed));
+        float t = Mathf.Clamp01(speed / PlayerRefrenceHolder.Instance.nextPositionFinder.MaxSpeed);
         float fov = Mathf.Lerp(startFov, startFov + fovEffectStrength, t*normAngle);
         camera.fieldOfView = fov;
     }

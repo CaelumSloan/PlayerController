@@ -14,12 +14,14 @@ public class NextPositionFinder : MonoBehaviour, IAction
     //State
     private Vector3 playerVelocity = Vector3.zero;
     public Vector3 PlayerVelocity { get { return playerVelocity; } private set { playerVelocity = value; } }
-    public float MaxSpeed { get { return moveSpeed; } private set { moveSpeed = value; } }
-
+    public float BaseSpeed { get { return moveSpeed; } private set { moveSpeed = value; } }
+    public float MaxSpeed { get { return maxMoveSpeed; } private set { maxMoveSpeed = value; } }
 
     //Exposed
     [Tooltip("Ground move speed")]
     [SerializeField] private float moveSpeed = 7.0f;
+    [Tooltip("Max player intended movement.")]
+    [SerializeField] private float maxMoveSpeed = 17.5f;
     [Tooltip("Ground accel")]
     [SerializeField] private float runAcceleration = 14.0f;
     [Tooltip("Deacceleration that occurs when running on the ground")]
@@ -88,7 +90,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
     {
         var velCop = playerVelocity;
         velCop.y = 0;
-        velCop = Vector3.ClampMagnitude(velCop, 17.50f);
+        velCop = Vector3.ClampMagnitude(velCop, maxMoveSpeed);
         playerVelocity.x = velCop.x;
         playerVelocity.z = velCop.z;
     }
