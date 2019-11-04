@@ -109,15 +109,15 @@ public class NextPositionFinder : MonoBehaviour, IAction
     /// </summary>
     private void QueueJump()
     {
-        if (Input.GetMouseButtonDown(1) && !wishJump)
-            wishJump = true;
-        if (Input.GetMouseButtonUp(1))
-            wishJump = false;
-
-        //if (Input.GetKeyDown(KeyCode.Space) && !wishJump)
+        //if (Input.GetMouseButtonDown(1) && !wishJump)
         //    wishJump = true;
-        //if (Input.GetKeyUp(KeyCode.Space))
+        //if (Input.GetMouseButtonUp(1))
         //    wishJump = false;
+
+        if (Input.GetKeyDown(KeyCode.Space) && !wishJump)
+            wishJump = true;
+        if (Input.GetKeyUp(KeyCode.Space))
+            wishJump = false;
     }
 
     //Subtracts friction (runDeacceleration * friction) from current speed.
