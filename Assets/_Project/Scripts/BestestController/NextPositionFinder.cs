@@ -98,6 +98,7 @@ public class NextPositionFinder : MonoBehaviour, IAction
     private void GroundMove(Vector3 wishDir, float deltaTimeStep)
     {
         ApplyFriction(deltaTimeStep);
+        moveSpeed = Input.GetKey(KeyCode.LeftShift) ? 17.50f : 14f;
         Accelerate(wishDir, moveSpeed, runAcceleration, deltaTimeStep);
 
         // Reset the gravity velocity. Seems unnecesary...

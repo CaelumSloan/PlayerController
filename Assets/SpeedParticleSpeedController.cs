@@ -15,8 +15,9 @@ public class SpeedParticleSpeedController : MonoBehaviour
 
     void Update()
     {
+        //main.startSpeed = PlayerRefrenceHolder.Instance.nextPositionFinder.PlayerVelocity.magnitude==PlayerRefrenceHolder.Instance.nextPositionFinder.MaxSpeed ? 35f : 0f;
         var quickVel = PlayerRefrenceHolder.Instance.nextPositionFinder.PlayerVelocity;
         quickVel.y = 0;
-        main.startSpeed = (quickVel.magnitude / PlayerRefrenceHolder.Instance.nextPositionFinder.MaxSpeed)*35f;
+        main.startSpeed = Mathf.Floor(quickVel.magnitude / PlayerRefrenceHolder.Instance.nextPositionFinder.MaxSpeed) * 35f;
     }
 }
