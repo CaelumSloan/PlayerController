@@ -162,10 +162,11 @@ public class NextPositionFinder : MonoBehaviour, IAction
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
-        //However, speed will still increase above wishspeed when wishDir is acute and not equal to playerVelocity
-        //This is where b-hopping mouse wiggle comes from.
-        //It also means turning such that each update tick holds wish dir acute to velocity
-        //helps gain speed each frame. i.e. Turning neither too slow or too fast will not lose speed, as one might expect.
+        //Clamping to remove that oddity in acute angles.
+        if (currentspeed < 0)
+            accelspeed = Mathf.Clamp(accelspeed, Mathf.NegativeInfinity, moveSpeed);
+
+
         playerVelocity.x += accelspeed * wishdir.x;
         playerVelocity.z += accelspeed * wishdir.z;
     }  
