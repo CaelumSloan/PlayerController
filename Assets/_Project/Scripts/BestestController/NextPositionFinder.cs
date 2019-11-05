@@ -146,10 +146,10 @@ public class NextPositionFinder : MonoBehaviour, IAction
 
     //Adds scaled wishDir to playerVelocity.
     //https://www.desmos.com/calculator/vef9eqpcdt
-    private void Accelerate(Vector3 wishdir, float wishspeed, float accel, float deltaTimeStep)
+    private void Accelerate(Vector3 wishDir, float wishspeed, float accel, float deltaTimeStep)
     {
         //Amount wishDir is in dir of vel between playerVelocity (same dir) and -playerVelocity.
-        float currentspeed = Vector3.Dot(playerVelocity, wishdir);
+        float currentspeed = Vector3.Dot(playerVelocity, wishDir);
         //Relative to wishspeed
         float addspeed = wishspeed - currentspeed;
         //No acceleration if you're faster than wishspeed. tsk tsk.
@@ -162,13 +162,19 @@ public class NextPositionFinder : MonoBehaviour, IAction
         if (accelspeed > addspeed)
             accelspeed = addspeed;
 
+        playerVelocity.x += accelspeed * wishDir.x;
+        playerVelocity.z += accelspeed * wishDir.z;
+
         //Clamping to remove that oddity in acute angles.
-        if (currentspeed < 0)
-            accelspeed = Mathf.Clamp(accelspeed, Mathf.NegativeInfinity, moveSpeed);
-
-
-        playerVelocity.x += accelspeed * wishdir.x;
-        playerVelocity.z += accelspeed * wishdir.z;
+        if (Vector3.Dot(wishDir.normalized, playerVelocity.normalized) > .5f)
+        {
+            var playerVelocityCopy = playerVelocity;
+            var yCop = playerVelocityCopy.y;
+            playerVelocityCopy.y = 0;
+            playerVelocityCopy = Vector3.ClampMagnitude(playerVelocityCopy, wishspeed);
+            playerVelocityCopy.y = yCop;
+            playerVelocity = playerVelocityCopy;
+        }
     }  
 
     private bool GroundCheck()
