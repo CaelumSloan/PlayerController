@@ -5,4 +5,5 @@ using UnityEngine;
 public class PlayerRefrenceHolder : Singleton<PlayerRefrenceHolder>
 {
     public NextPositionFinder nextPositionFinder;
+    public Camera gameObjectCamera;
 }
